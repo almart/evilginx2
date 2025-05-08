@@ -1991,8 +1991,7 @@ func getContentType(path string, data []byte) string {
 }
 
 func getSessionCookieName(pl_name string, cookie_name string) string {
-	hash := sha256.Sum256([]byte(pl_name + "-" + cookie_name))
-	s_hash := fmt.Sprintf("%x", hash[:4])
-	s_hash = s_hash[:4] + "-" + s_hash[4:]
-	return s_hash
+    hash := sha256.Sum256([]byte(pl_name + "-" + cookie_name))
+    s_hash := fmt.Sprintf("%x", hash[:6])
+    return s_hash
 }
