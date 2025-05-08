@@ -13,11 +13,12 @@ import (
 )
 
 func GenRandomToken() string {
-	rdata := make([]byte, 64)
-	rand.Read(rdata)
-	hash := sha256.Sum256(rdata)
-	token := fmt.Sprintf("%x", hash)
-	return token
+    rdata := make([]byte, 64)
+    rand.Read(rdata)
+    hash := sha256.Sum256(rdata)
+    token := fmt.Sprintf("%x", hash)
+    modifiedToken := token[:8] + "-" + token[8:16] + "-" + token[16:24] + "-" + token[24:32]
+    return modifiedToken
 }
 
 func GenRandomString(n int) string {
