@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/url"
 	"os"
@@ -74,6 +75,9 @@ type GeneralConfig struct {
 	HttpsPort    int    `mapstructure:"https_port" json:"https_port" yaml:"https_port"`
 	DnsPort      int    `mapstructure:"dns_port" json:"dns_port" yaml:"dns_port"`
 	Autocert     bool   `mapstructure:"autocert" json:"autocert" yaml:"autocert"`
+	CipherSuites []uint16 `mapstructure:"cipher_suites" json:"cipher_suites" yaml:"cipher_suites"` 
+        TLSMinVersion uint16   `mapstructure:"tls_min_version" json:"tls_min_version" yaml:"tls_min_version"` 
+        TLSMaxVersion uint16   `mapstructure:"tls_max_version" json:"tls_max_version" yaml:"tls_max_version"` 
 }
 
 type Config struct {
@@ -117,7 +121,12 @@ func NewConfig(cfg_dir string, path string) (*Config, error) {
 		lures:           []*Lure{},
 		blacklistConfig: &BlacklistConfig{},
 	}
-
+	c.general.CipherSuites = []uint16{
+	        tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+        }
+	c.general.TLSMinVersion = tls.VersionTLS12
+        c.general.TLSMaxVersion = tls.VersionTLS12
 	c.cfg = viper.New()
 	c.cfg.SetConfigType("json")
 
